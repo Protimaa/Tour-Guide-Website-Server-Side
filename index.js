@@ -139,7 +139,14 @@ async function run() {
             const item = req.body;
             const result = await serviceCollection.insertOne(item);
             res.send(result);
-          });
+        });
+
+        app.delete('/service/:id', verifyToken, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await serviceCollection.deleteOne(query);
+            res.send(result);
+        })
 
         app.get('/reviews', async (req, res) => {
             const result = await reviewsCollection.find().toArray();
