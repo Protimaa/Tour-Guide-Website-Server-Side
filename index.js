@@ -1,17 +1,25 @@
 const express = require('express');
+require('dotenv').config();
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+
 const app = express();
 const port = process.env.PORT || 5000;
 
 
 // middleware 
-app.use(cors());
+app.use(cors({
+    origin: [
+        "http://localhost:5173" ,
+        "https://dp-tourist-guide.web.app"
+    ],
+   
+}));
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uwosaps.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,7 +45,9 @@ async function run() {
         // for jwt
         app.post('/jwt', async (req, res) => {
             const user = req.body;
+            
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+
             res.send({ token });
         })
 
@@ -82,12 +92,12 @@ async function run() {
             res.send(result);
         });
         // for admin 
-        app.get('/users/admin/:email', verifyToken, async (req, res) => {
+        app.get('/users/admin/:email',  async (req, res) => {
             const email = req.params.email;
 
-            if (email !== req.decoded.email) {
-                return res.status(403).send({ message: 'forbidden access' })
-            }
+            // if (email !== req.decoded.email) {
+            //     return res.status(403).send({ message: 'forbidden access' })
+            // }
 
             const query = { email: email };
             const user = await userCollection.findOne(query);
